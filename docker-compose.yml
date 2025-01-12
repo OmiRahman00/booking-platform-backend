@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  reservations:
+    build:
+      context: .
+      dockerfile: ./apps/reservations/Dockerfile
+      target: development
+    command: npm run start:dev reservations
+    env_file:
+      - ./apps/reservations/.env
+    ports:
+      - '3000:3000'
+    volumes:
+      - .:/usr/src/app
+    environment:
+      - NODE_ENV=development
+      - MONGODB_URI=mongodb+srv://omirahman:omirahman@cluster0.3facf.mongodb.net/booking-app # Ensure the Mongo URI is correct
+    networks:
+      - app-network  # Ensure reservations and mongo are in the same network
+
+  auth:
+    build:
+      context: .
+      dockerfile: ./apps/auth/Dockerfile
+      target: development
+    command: npm run start:dev auth
+    env_file:
+      - ./apps/auth/.env
+    ports:
+      - '3001:3001'
+    volumes:
+      - .:/usr/src/app
+    networks:
+      - app-network  # auth can be in the same network if needed
+
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    ports:
+      - '27017:27017'
+    networks:
+      - app-network  # mongo service should also be in the same network
+    volumes:
+      - mongo-data:/data/db  # Persist MongoDB data
+
+networks:
+  app-network:
+    driver: bridge  # Use the bridge network for internal communication
+
+volumes:
+  mongo-data:
+    driver: local  # Ensure the volume persists MongoDB data across container restarts

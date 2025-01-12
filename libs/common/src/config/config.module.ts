@@ -7,6 +7,7 @@ import * as Joi from 'joi';
 @Module({
   imports: [
     NestConfigModule.forRoot({
+      isGlobal: true,
       validationSchema: Joi.object({
         MONGODB_URI : Joi.string().required(),
       }),
